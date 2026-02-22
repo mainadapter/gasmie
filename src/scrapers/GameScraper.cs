@@ -4,14 +4,14 @@ namespace gasmie.src
 {
     public class GameScraper : Scraper
     {
-        private const string NAME_AND_IMAGE_CODE = "ozUTt";
-        private static readonly string NAME_AND_IMAGE_NODE = $"//div[@class='GameSideBar_game_image__{NAME_AND_IMAGE_CODE} mobile_hide']/img";
-        private const string DURATION_CODE = "KHrRY";
-        private static readonly string DURATION_NODE = $"//div[@class='GameStats_game_times__{DURATION_CODE} shadow_shadow']/ul/li";
-        private const string GENRES_AND_DEVELOPERS_CODE = "HZFQu";
-        private static readonly string GENRES_AND_DEVELOPERS_NODE = $"//div[@class='GameSummary_profile_info__{GENRES_AND_DEVELOPERS_CODE} GameSummary_medium___r_ia']";
-        private const string RELEASE_CODE = "HZFQu";
-        private static readonly string RELEASE_NODE = $"//div[@class='GameSummary_profile_info__{RELEASE_CODE}']";
+        private const string NAME_AND_IMAGE_CODE = "gx1sIG";
+        private static readonly string NAME_AND_IMAGE_NODE = $"//div[@class='GameSideBar-module__{NAME_AND_IMAGE_CODE}__game_image mobile_hide']/img";
+        private const string DURATION_CODE = "aP4Tyq";
+        private static readonly string DURATION_NODE = $"//div[contains(@class, 'GameStats-module__{DURATION_CODE}__stat') and contains(@class, 'time_')]";
+        private const string GENRES_AND_DEVELOPERS_CODE = "ndH3gG";
+        private static readonly string GENRES_AND_DEVELOPERS_NODE = $"//div[@class='GameSummary-module__{GENRES_AND_DEVELOPERS_CODE}__profile_info GameSummary-module__{GENRES_AND_DEVELOPERS_CODE}__medium']";
+        private const string RELEASE_CODE = "ndH3gG";
+        private static readonly string RELEASE_NODE = $"//div[@class='GameSummary-module__{RELEASE_CODE}__profile_info']";
 
         public GameScraper(string url) : base(url) { }
 
@@ -50,7 +50,7 @@ namespace gasmie.src
         {
             var nodes = Document.DocumentNode.SelectNodes(DURATION_NODE);
             var durationNode = nodes.FirstOrDefault(n => n.InnerHtml.Contains(keyword));
-            return durationNode is null ? "" : FormatString(durationNode.InnerText, new string[] { keyword, "\t" }).Replace("&#189;", "½");
+            return durationNode is null ? "" : FormatString(durationNode.InnerText, [keyword, "\t"]).Replace("&#189;", "½");
         }
 
         private string DigGenres()
@@ -68,7 +68,10 @@ namespace gasmie.src
         private string DigRelease()
         {
             var releaseNode = Document.DocumentNode.SelectNodes(RELEASE_NODE);
-            return releaseNode is null ? "" : FormatString(releaseNode.First().InnerText, new string[] { "\n", "\t" }).Split(":")[1].Trim();
+            if (releaseNode is null) return "";
+            
+            var dateString = FormatString(releaseNode.First().InnerText, new string[] { "\n", "\t" }).Split(":")[1].Trim();
+            return System.Text.RegularExpressions.Regex.Replace(dateString, @"(\d+)(st|nd|rd|th)", "$1");
         }
 
         private static HtmlNode? DigNodeByKeyword(HtmlNodeCollection nodes, string keyword)
