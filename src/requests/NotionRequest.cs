@@ -5,63 +5,55 @@ namespace gasmie.src.notion
 {
     public static class NotionRequest
     {
-        public async static ValueTask<List<ScraperDto>> GetScraperDtos(string url, string id, string key)
+        public static async ValueTask<List<ScraperDto>> GetScraperDtos(string url, string id, string key)
         {
-            var client = new RestClient(url);
+            using var client = new RestClient(url);
             var request = new RestRequest($"databases/{id}/query", Method.Post);
             request.AddHeader("Notion-Version", "2022-06-28");
             request.AddHeader("Authorization", $"Bearer {key}");
 
             var response = await client.ExecuteAsync(request);
-            return GetScraperDtos(response);
+            return ExtractScraperDtos(response);
         }
 
-        private static List<ScraperDto> GetScraperDtos(RestResponse response)
+        private static List<ScraperDto> ExtractScraperDtos(RestResponse response)
         {
-            var list = new List<ScraperDto>();
-
             if (!response.IsSuccessful)
             {
-                Console.WriteLine($"Notion Response returned error: {response.ErrorMessage}");
-                return list;
+                Console.WriteLine($"Notion API error: {response.ErrorMessage}");
+                return [];
             }
 
-            var content = response.Content;
-            if (content is null)
+            if (string.IsNullOrEmpty(response.Content))
             {
-                Console.WriteLine("Notion Response returned with no content.");
-                return list;
+                Console.WriteLine("Notion API returned empty response.");
+                return [];
             }
 
-            var databaseResponse = JsonConvert.DeserializeObject<DatabaseResponse>(content);
-            if (databaseResponse == null)
+            var databaseResponse = JsonConvert.DeserializeObject<DatabaseResponse>(response.Content);
+            if (databaseResponse?.Results is null || databaseResponse.Results.Length == 0)
             {
-                Console.WriteLine("Notion DatabaseResponse could not be serialized.");
-                return list;
+                Console.WriteLine("No results found in Notion database.");
+                return [];
             }
 
-            var results = databaseResponse.Results;
-            if (results == null)
+            var scrapers = new List<ScraperDto>();
+            foreach (var result in databaseResponse.Results)
             {
-                Console.WriteLine("Serialized DatabaseResponse returned with no results.");
-                return list;
-            }
+                var scraperUrl = result?.Properties?.Link?.Url;
+                var scraperMode = result?.Properties?.Type?.Select?.Name;
 
-            foreach (var result in results)
-            {
-                var url = result?.Properties?.Link?.Url ?? "";
-                var name = result?.Properties?.Type?.Select?.Name ?? ScraperMode.NONE;
-
-                if (url.Equals("") || name.Equals(ScraperMode.NONE))
+                if (scraperMode is ScraperMode mode && mode != ScraperMode.NONE && !string.IsNullOrEmpty(scraperUrl))
                 {
-                    Console.WriteLine("One of your Notion data on database could not be loaded. Check the URL or the ScraperMode");
-                    continue;
+                    scrapers.Add(new ScraperDto(scraperUrl, mode));
                 }
-
-                list.Add(new ScraperDto(url, name));
+                else
+                {
+                    Console.WriteLine("Skipping invalid entry: missing URL or unsupported scraper mode.");
+                }
             }
 
-            return list;
+            return scrapers;
         }
     }
 }

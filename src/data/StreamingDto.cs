@@ -1,38 +1,16 @@
 namespace gasmie.src.data
 {
-    public class StreamingDto
+    public record StreamingDto(
+        string Type,
+        string Image,
+        string Name,
+        string Episodes,
+        string Genres,
+        string Duration,
+        string URL)
     {
-        public string Type { get; init; }
-        public string Name { get; init; }
-        public string Image { get; init; }
-        public string Status { get; init; }
-        public string Genres { get; init; }
-        public string Duration { get; init; }
-        public string Episodes { get; set; }
-        public string URL { get; set; }
-
-        public StreamingDto(
-            string type,
-            string image,
-            string name,
-            string episodes,
-            string genres,
-            string duration,
-            string url)
-        {
-            Status = "To Watch";
-            Type = type;
-            Image = image;
-            Name = name;
-            Episodes = episodes;
-            Genres = genres;
-            Duration = duration;
-            URL = url;
-        }
-
-        public override string ToString()
-        {
-            return "streaming";
-        }
+        public string Status => "To Watch";
+        
+        public override string ToString() => "streaming";
     }
 }

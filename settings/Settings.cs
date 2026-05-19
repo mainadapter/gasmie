@@ -6,23 +6,20 @@ namespace gasmie.settings
     {
         private static IConfigurationRoot Setup()
         {
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-            .AddJsonFile(
-                Path.Combine("settings", "appsettings.json")
-                , false
-                , true
-            );
-
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile(Path.Combine("settings", "appsettings.json"), optional: false, reloadOnChange: true);
+            
             return builder.Build();
         }
 
         public static (string, string, string) GetNotionConnectionStrings()
         {
             var settings = Setup();
-            return (settings.GetConnectionString("NotionUrl")
-                , settings.GetConnectionString("NotionDatabaseId")
-                , settings.GetConnectionString("NotionKey")
-            );
+            var url = settings.GetConnectionString("NotionUrl") ?? throw new InvalidOperationException("NotionUrl not configured");
+            var id = settings.GetConnectionString("NotionDatabaseId") ?? throw new InvalidOperationException("NotionDatabaseId not configured");
+            var key = settings.GetConnectionString("NotionKey") ?? throw new InvalidOperationException("NotionKey not configured");
+            
+            return (url, id, key);
         }
     }
 }

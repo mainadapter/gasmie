@@ -17,12 +17,12 @@ namespace gasmie.src
 
         public override object Dig()
         {
-            var nameAndImage = DigNameAndImage();
+            var (name, image) = DigNameAndImage();
 
             return new GameDto(
                 "Library",
-                nameAndImage[0],
-                nameAndImage[1],
+                name,
+                image,
                 DigDuration("Main + Sides"),
                 DigDuration("Completionist"),
                 DigGenres(),
@@ -31,61 +31,87 @@ namespace gasmie.src
                 URL);
         }
 
-        private string[] DigNameAndImage()
+        private (string name, string image) DigNameAndImage()
         {
-            string[] nameAndImage = { "", "" };
-
             var nameAndImageNode = Document.DocumentNode.SelectNodes(NAME_AND_IMAGE_NODE);
-            if (nameAndImageNode is not null)
+            if (nameAndImageNode is null || nameAndImageNode.Count == 0)
+                return ("", "");
+
+            try
             {
                 var outerHtml = nameAndImageNode.First().OuterHtml.Split("\"");
-                nameAndImage[0] = FormatString(outerHtml[1], new string[] { "Box Art" }).Replace("&#x27;", "'");
-                nameAndImage[1] = outerHtml[3];
+                var name = FormatString(outerHtml[1], ["Box Art"]).Replace("&#x27;", "'");
+                var image = outerHtml[3].Split("?")[0];
+                return (name, image);
             }
-
-            return nameAndImage;
+            catch
+            {
+                return ("", "");
+            }
         }
 
         private string DigDuration(string keyword)
         {
             var nodes = Document.DocumentNode.SelectNodes(DURATION_NODE);
-            var durationNode = nodes.FirstOrDefault(n => n.InnerHtml.Contains(keyword));
-            return durationNode is null ? "" : FormatString(durationNode.InnerText, [keyword, "\t"]).Replace("&#189;", "½");
+            var durationNode = nodes?.FirstOrDefault(n => n.InnerHtml.Contains(keyword));
+            
+            return durationNode switch
+            {
+                null => "",
+                _ => FormatString(durationNode.InnerText, [keyword, "\t"]).Replace("&#189;", "½")
+            };
         }
 
         private string DigGenres()
         {
-            var genresNode = DigNodeByKeyword(Document.DocumentNode.SelectNodes(GENRES_AND_DEVELOPERS_NODE), "Genre");
-            return genresNode is null ? "" : FormatString(genresNode.InnerText, new string[] { "Genres:", "Genre:", "\n", "\t" });
+            var nodes = Document.DocumentNode.SelectNodes(GENRES_AND_DEVELOPERS_NODE);
+            var genresNode = FindNodeByKeyword(nodes, "Genre");
+            return genresNode switch
+            {
+                null => "",
+                _ => FormatString(genresNode.InnerText, ["Genres:", "Genre:", "\n", "\t"])
+            };
         }
 
         private string DigDevelopers()
         {
-            var developersNode = DigNodeByKeyword(Document.DocumentNode.SelectNodes(GENRES_AND_DEVELOPERS_NODE), "Developer");
-            return developersNode is null ? "" : FormatString(developersNode.InnerText, new string[] { "Developers:", "Developer:", "\n", "\t" });
+            var nodes = Document.DocumentNode.SelectNodes(GENRES_AND_DEVELOPERS_NODE);
+            var developersNode = FindNodeByKeyword(nodes, "Developer");
+            return developersNode switch
+            {
+                null => "",
+                _ => FormatString(developersNode.InnerText, ["Developers:", "Developer:", "\n", "\t"])
+            };
         }
 
         private string DigRelease()
         {
             var releaseNode = Document.DocumentNode.SelectNodes(RELEASE_NODE);
-            if (releaseNode is null) return "";
-            
-            var dateString = FormatString(releaseNode.First().InnerText, new string[] { "\n", "\t" }).Split(":")[1].Trim();
-            return System.Text.RegularExpressions.Regex.Replace(dateString, @"(\d+)(st|nd|rd|th)", "$1");
-        }
+            if (releaseNode is null || !releaseNode.Any())
+                return "";
 
-        private static HtmlNode? DigNodeByKeyword(HtmlNodeCollection nodes, string keyword)
-        {
-            return nodes.FirstOrDefault(n => n.InnerText.Contains(keyword));
-        }
-
-        private static string FormatString(string value, string[] strings)
-        {
-            foreach (var str in strings)
+            try
             {
-                value = value.Replace(str, "");
+                var dateString = FormatString(releaseNode.First().InnerText, ["\n", "\t"]).Split(':')[1].Trim();
+                return System.Text.RegularExpressions.Regex.Replace(dateString, @"(\d+)(st|nd|rd|th)", "$1");
             }
+            catch
+            {
+                return "";
+            }
+        }
 
+        private static HtmlNode? FindNodeByKeyword(HtmlNodeCollection? nodes, string keyword)
+        {
+            return nodes?.FirstOrDefault(n => n.InnerText.Contains(keyword));
+        }
+
+        private static string FormatString(string value, params string[] tokens)
+        {
+            foreach (var token in tokens)
+            {
+                value = value.Replace(token, "");
+            }
             return value.Trim();
         }
     }
