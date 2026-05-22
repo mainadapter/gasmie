@@ -17,6 +17,12 @@ namespace gasmie.src
             Document = web.Load(url);
         }
 
+        protected Scraper(HtmlDocument document, string url)
+        {
+            URL = url;
+            Document = document;
+        }
+
         public abstract object Dig();
     }
 }

@@ -11,6 +11,11 @@ namespace gasmie.src
             Type = type;
         }
 
+        protected StreamingScraper(HtmlAgilityPack.HtmlDocument document, string url, string type) : base(document, url)
+        {
+            Type = type;
+        }
+
         public override object Dig()
         {
             return new StreamingDto(

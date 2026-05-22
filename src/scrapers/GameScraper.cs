@@ -14,6 +14,7 @@ namespace gasmie.src
         private static readonly string RELEASE_NODE = $"//div[@class='GameSummary-module__{RELEASE_CODE}__profile_info']";
 
         public GameScraper(string url) : base(url) { }
+        protected GameScraper(HtmlDocument document, string url) : base(document, url) { }
 
         public override object Dig()
         {
