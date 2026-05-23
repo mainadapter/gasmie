@@ -55,7 +55,7 @@ namespace gasmie.src
         {
             var nodes = Document.DocumentNode.SelectNodes(DURATION_NODE);
             var durationNode = nodes?.FirstOrDefault(n => n.InnerHtml.Contains(keyword));
-            
+
             return durationNode switch
             {
                 null => "",
@@ -67,12 +67,11 @@ namespace gasmie.src
         {
             var nodes = Document.DocumentNode.SelectNodes(GENRES_AND_DEVELOPERS_NODE);
             var genresNode = FindNodeByKeyword(nodes, "Genre");
-            if (genresNode is null)
-                return "";
-
-            var raw = FormatString(genresNode.InnerText, ["Genres:", "Genre:", "\n", "\t"]);
-            var genres = raw.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            return string.Join(", ", genres.Select(g => $"\"{g}\""));
+            return genresNode switch
+            {
+                null => "",
+                _ => FormatString(genresNode.InnerText, ["Genres:", "Genre:", "\n", "\t"])
+            };
         }
 
         private string DigDevelopers()
