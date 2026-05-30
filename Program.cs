@@ -1,6 +1,5 @@
-﻿using gasmie.settings;
-using gasmie.src;
-using gasmie.src.notion;
+using gasmie.settings;
+using gasmie.src.services;
 
 try
 {
@@ -13,12 +12,8 @@ try
         return;
     }
 
-    var scrapers = ScraperGenerator.Generate(dtos);
-    var listScrapers = scrapers.GroupBy(s => s.ToString()).ToList();
-    var listDtos = listScrapers.Select(l => l.Select(s => s.Dig()).ToList()).ToList();
-    listDtos.ForEach(l => CsvGenerator.Generate(l));
-
-    Console.WriteLine($"Successfully processed {listDtos.Count} scraper groups.");
+    await ScrapingWorkflow.RunAsync(dtos);
+    Console.WriteLine("All done!");
 }
 catch (Exception ex)
 {
