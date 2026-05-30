@@ -1,6 +1,6 @@
 using HtmlAgilityPack;
 
-namespace gasmie.tests.Helpers;
+namespace gasmie.tests.helpers;
 
 /// <summary>
 /// Utility to load <see cref="HtmlDocument"/> from raw HTML strings.

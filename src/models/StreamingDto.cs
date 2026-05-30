@@ -9,7 +9,7 @@ public record StreamingDto(
     string Duration,
     string URL)
 {
-    public static string Status => "To Watch";
+    public string Status => "To Watch";
 
     public override string ToString() => "streaming";
 }

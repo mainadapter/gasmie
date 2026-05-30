@@ -1,5 +1,5 @@
-using gasmie.src;
-using gasmie.src.data;
+
+using gasmie.src.models;
 
 namespace gasmie.tests;
 

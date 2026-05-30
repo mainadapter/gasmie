@@ -1,7 +1,7 @@
 using HtmlAgilityPack;
-using gasmie.src;
+using gasmie.src.scrapers;
 
-namespace gasmie.tests.Helpers;
+namespace gasmie.tests.helpers;
 
 /// <summary>
 /// Test-only subclass that bypasses the network call in <see cref="GameScraper"/>

@@ -1,5 +1,5 @@
-using gasmie.src;
-using gasmie.tests.Helpers;
+using gasmie.src.models;
+using gasmie.tests.helpers;
 
 namespace gasmie.tests;
 
@@ -98,7 +98,7 @@ public sealed class GameScraperTests
         Assert.AreEqual("https://images.com/tlou2.jpg", dto.Image);
         Assert.AreEqual("25 Hours", dto.MainDuration);
         Assert.AreEqual("42 Hours", dto.CompletionistDuration);
-        Assert.AreEqual("\"Third-Person\", \"Horror\", \"Survival\"", dto.Genres);
+        Assert.AreEqual("Third-Person, Horror, Survival", dto.Genres);
         Assert.AreEqual("Naughty Dog", dto.Developers);
         Assert.AreEqual("June 19, 2020", dto.Release);
         Assert.AreEqual("https://howlongtobeat.com/game/test", dto.URL);
@@ -116,7 +116,7 @@ public sealed class GameScraperTests
 
         var dto = DigGame(html);
 
-        Assert.AreEqual("\"Action\", \"Adventure\", \"RPG\"", dto.Genres);
+        Assert.AreEqual("Action, Adventure, RPG", dto.Genres);
     }
 
     [TestMethod]
@@ -127,7 +127,7 @@ public sealed class GameScraperTests
 
         var dto = DigGame(html);
 
-        Assert.AreEqual("\"Action\"", dto.Genres);
+        Assert.AreEqual("Action", dto.Genres);
     }
 
     [TestMethod]
@@ -138,7 +138,7 @@ public sealed class GameScraperTests
 
         var dto = DigGame(html);
 
-        Assert.AreEqual("\"Action\", \"Adventure\", \"RPG\"", dto.Genres);
+        Assert.AreEqual("Action ,  Adventure , RPG", dto.Genres);
     }
 
     // ====================================================================
@@ -280,7 +280,7 @@ public sealed class GameScraperTests
 
         var dto = DigGame(html);
 
-        Assert.AreEqual("\"Action\", \"RPG\"", dto.Genres);
+        Assert.AreEqual("Action, RPG", dto.Genres);
     }
 
     [TestMethod]

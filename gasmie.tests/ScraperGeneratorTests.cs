@@ -1,4 +1,5 @@
-using gasmie.src;
+using gasmie.src.models;
+using gasmie.src.scrapers;
 
 namespace gasmie.tests;
 

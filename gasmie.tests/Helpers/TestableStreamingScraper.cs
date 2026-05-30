@@ -1,7 +1,7 @@
 using HtmlAgilityPack;
-using gasmie.src;
+using gasmie.src.scrapers;
 
-namespace gasmie.tests.Helpers;
+namespace gasmie.tests.helpers;
 
 /// <summary>
 /// Test-only subclass that bypasses the network call in <see cref="StreamingScraper"/>
@@ -10,5 +10,5 @@ namespace gasmie.tests.Helpers;
 internal sealed class TestableStreamingScraper : StreamingScraper
 {
     public TestableStreamingScraper(HtmlDocument document, string type)
-        : base(document, "https://www.allocine.fr/test", type) { }
+        : base(document, "https://www.justwatch.com/br/test", type) { }
 }
